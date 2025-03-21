@@ -12,6 +12,8 @@ from io import BytesIO
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)  # Allow all origins by default
+
 
 # Define Hugging Face URLs
 MODEL_URL = "https://huggingface.co/sushanthrai/AI_VERCE_HACKTHON/resolve/main/emotion_model.pth"
