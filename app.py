@@ -2,8 +2,10 @@ import os
 import librosa
 import numpy as np
 import requests
-from flask import Flask, request, jsonify
+import threading
+import time
 import torch
+from flask import Flask, request, jsonify
 from model import EmotionClassifier
 from sklearn.preprocessing import LabelEncoder
 from io import BytesIO
@@ -15,12 +17,12 @@ app = Flask(__name__)
 MODEL_URL = "https://huggingface.co/sushanthrai/AI_VERCE_HACKTHON/resolve/main/emotion_model.pth"
 LABELS_URL = "https://huggingface.co/sushanthrai/AI_VERCE_HACKTHON/resolve/main/label_classes.npy"
 
-# Define file paths
+# Define local file paths
 MODEL_PATH = "emotion_model.pth"
 LABELS_PATH = "label_classes.npy"
 
+# Function to download files from Hugging Face if they don’t exist
 def download_file(url, output_path):
-    """Downloads a file from Hugging Face if it doesn't exist."""
     if not os.path.exists(output_path):  
         print(f"Downloading {output_path} from Hugging Face...")
         response = requests.get(url, stream=True)
@@ -40,14 +42,14 @@ num_classes = 7  # Number of emotion classes
 
 # Initialize and load the model
 model = EmotionClassifier(input_size, hidden_size, num_classes)
-model.load_state_dict(torch.load(MODEL_PATH))
+model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device("cpu")))
 model.eval()
 
 # Load label encoder classes
 label_encoder = LabelEncoder()
 label_encoder.classes_ = np.load(LABELS_PATH, allow_pickle=True)
 
-# Helper function to check allowed file extensions
+# Allowed file extensions for audio upload
 ALLOWED_EXTENSIONS = {"wav", "mp3", "ogg", "flac"}
 
 def allowed_file(filename):
@@ -86,6 +88,29 @@ def predict_emotion(audio_bytes):
     emotion = label_encoder.inverse_transform([predicted_class])[0]
     return emotion
 
+# Render URL for pinging (REPLACE with your actual Render deployment URL)
+RENDER_URL = "https://your-app.onrender.com/ping"
+
+# Function to keep the service active
+def ping_self():
+    time.sleep(30)  # Delay before starting to ensure app is ready
+    while True:
+        try:
+            print("Pinging service to keep it awake...")
+            response = requests.get(RENDER_URL)
+            print(f"Ping response: {response.status_code}")
+        except Exception as e:
+            print(f"Ping failed: {e}")
+        time.sleep(600)  # Ping every 10 minutes
+
+# Flask route for health check (so Render knows it's alive)
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"message": "Service is alive"}), 200
+
+# Start the ping function in a background thread
+threading.Thread(target=ping_self, daemon=True).start()
+
 # Flask route for file upload and emotion prediction
 @app.route("/upload", methods=["POST"])
 def upload_audio():
@@ -106,4 +131,5 @@ def upload_audio():
 
 # Run the Flask app
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Get port from Render, default to 5000
+    app.run(host="0.0.0.0", port=port, debug=True)
