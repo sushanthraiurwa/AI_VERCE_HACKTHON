@@ -1,0 +1,13 @@
+# Ignore virtual environment  
+emotion_env/  
+
+
+*.npy  
+*.pth 
+# Ignore dataset and model files  
+dataset/  
+ 
+
+# Ignore cache and compiled files  
+__pycache__/  
+uploads/  
