@@ -9,6 +9,8 @@ from flask import Flask, request, jsonify
 from model import EmotionClassifier
 from sklearn.preprocessing import LabelEncoder
 from io import BytesIO
+from flask_cors import CORS
+
 
 # Initialize Flask app
 app = Flask(__name__)
