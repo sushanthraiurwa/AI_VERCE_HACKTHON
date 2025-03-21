@@ -93,7 +93,7 @@ def predict_emotion(audio_bytes):
     return emotion
 
 # Render URL for pinging (REPLACE with your actual Render deployment URL)
-RENDER_URL = "https://your-app.onrender.com/ping"
+RENDER_URL = "https://ai-verce-hackthon.onrender.com/ping"
 
 # Function to keep the service active
 def ping_self():
