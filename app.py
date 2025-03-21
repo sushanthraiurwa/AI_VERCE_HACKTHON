@@ -105,7 +105,7 @@ def ping_self():
             print(f"Ping response: {response.status_code}")
         except Exception as e:
             print(f"Ping failed: {e}")
-        time.sleep(600)  # Ping every 10 minutes
+        time.sleep(45)  # Ping every 10 minutes
 
 # Flask route for health check (so Render knows it's alive)
 @app.route("/ping", methods=["GET"])
@@ -134,6 +134,3 @@ def upload_audio():
     return jsonify({"error": "Invalid file type"}), 400
 
 # Run the Flask app
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Get port from Render, default to 5000
-    app.run(host="0.0.0.0", port=port, debug=True)
