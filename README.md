@@ -65,8 +65,10 @@ python app.py
 ```
 ### 🔹 2. Test API with an Audio File
 ```sh
-curl -X POST -F "file=@sample.wav" http://127.0.0.1:5000/predict
+curl -X POST -F "file=@sample.wav" http://127.0.0.1:5000/upload
 ```
+And upload the audio file
+
 Response:
 ```json
 {
